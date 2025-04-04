@@ -1,4 +1,4 @@
-# The 1100 most popular packages on hex.pm, according to https://hex.pm/api/packages on 2025-04-03
+# The 1100 most popular packages on hex.pm, queried 2025-04-04
 # Generated using:
 #     mix popular_packages
 jason
