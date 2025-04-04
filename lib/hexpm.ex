@@ -7,6 +7,9 @@ defmodule LocalHexdocs.Hexpm do
   def recent_downloads_page(page_no),
     do: api_get(@base_url <> "packages?sort=recent_downloads&page=#{page_no}")
 
+  def get_package(name),
+    do: api_get(@base_url <> "packages/#{name}")
+
   def api_get(url) do
     {:ok, {{_, 200, _}, _, body}} =
       :httpc.request(

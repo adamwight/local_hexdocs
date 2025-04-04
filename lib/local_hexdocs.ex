@@ -19,6 +19,7 @@ defmodule LocalHexdocs do
   Code.ensure_loaded!(LocalHexdocs.Helpers)
 
   import LocalHexdocs.Helpers
+  alias LocalHexdocs.Hexpm
 
   # Number of parallel threads used to pull documentation. The higher this number,
   # the greater the load placed on `hexdocs.pm` and the greater your odds of getting rate limited
@@ -60,6 +61,7 @@ defmodule LocalHexdocs do
   def fetch_all do
     stream =
       desired_packages()
+      |> remove_up_to_date()
       |> Task.async_stream(
         fn lib ->
           # TODO: can already split :ok and :error here
@@ -86,6 +88,20 @@ defmodule LocalHexdocs do
     |> Enum.to_list()
     |> process_list()
     |> IO.inspect(limit: :infinity, printable_limit: :infinity)
+  end
+
+  defp remove_up_to_date(names) do
+    up_to_date =
+      downloaded_packages_with_versions()
+      |> Enum.filter(fn {package, have_versions} ->
+        # TODO: parallelize and rate-limit this API call
+        Atom.to_string(package) in names &&
+          Hexpm.get_package(package)["latest_version"] in have_versions
+      end)
+      |> Enum.map(fn {package, _} -> Atom.to_string(package) end)
+
+    # TODO: add up_to_date to "Docs already fetched"
+    names -- up_to_date
   end
 
   @doc """
